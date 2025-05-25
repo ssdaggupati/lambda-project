@@ -20,7 +20,7 @@ cp lambda/lambda_function.py lambda/lambda_build/
 
 # Zip contents INTO the build folder
 cd lambda/lambda_build
-zip -r lambda.zip .
+zip -r lambda_function.zip .
 cd "$PROJECT_ROOT"
 
 echo "Lambda deployment package created at lambda/lambda_build/lambda.zip"
