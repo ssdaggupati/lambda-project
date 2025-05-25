@@ -20,12 +20,12 @@ jobs:
 
     - name: Install dependencies and prepare Lambda package
       run: |
-        chmod +x build_lambda.sh
-        ./build_lambda.sh
+        chmod +x scripts/build_lambda.sh
+        ./scripts/build_lambda.sh
 
     - name: Upload Lambda package as artifact
       uses: actions/upload-artifact@v4
       with:
         name: lambda-package
-        path: lambda_function.zip
+        path: lambda/lambda_build/lambda_function.zip
 
