@@ -20,14 +20,8 @@ jobs:
 
     - name: Install dependencies and prepare Lambda package
       run: |
-        mkdir -p lambda_build
-        pip install -r requirements.txt -t lambda_build/
-        cp lambda_function.py lambda_build/
-
-    - name: Zip deployment package
-      run: |
-        cd lambda_build
-        zip -r ../lambda.zip .
+        chmod +x build_lambda.sh
+        ./build_lambda.sh
 
     - name: Upload Lambda package as artifact
       uses: actions/upload-artifact@v4
