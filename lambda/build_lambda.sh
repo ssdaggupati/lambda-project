@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e  # Exit on error
+set -e
 
 # Change to project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -9,7 +9,7 @@ cd "$PROJECT_ROOT"
 echo "Current working directory: $PWD"
 
 # Cleanup
-rm -rf lambda/lambda_build
+rm -rf lambda/lambda_build lambda/lambda_function.zip
 mkdir -p lambda/lambda_build
 
 # Install dependencies to build dir
@@ -18,10 +18,9 @@ pip install -r lambda/requirements.txt -t lambda/lambda_build/
 # Copy source file
 cp lambda/lambda_function.py lambda/lambda_build/
 
-# Zip contents INTO the build folder
+# Create final zip in root of lambda/
 cd lambda/lambda_build
-zip -r ../lambda_function.zip .
+zip -r ../lambda_function.zip .  # This is the one to upload to Lambda
 cd "$PROJECT_ROOT"
 
-echo "Lambda deployment package created at lambda/lambda_build/lambda_function.zip"
-
+echo "Lambda deployment package created at lambda/lambda_function.zip"
