@@ -23,5 +23,5 @@ cd lambda/lambda_build
 zip -r lambda_function.zip .
 cd "$PROJECT_ROOT"
 
-echo "Lambda deployment package created at lambda/lambda_build/lambda.zip"
+echo "Lambda deployment package created at lambda/lambda_build/lambda_function.zip"
 
