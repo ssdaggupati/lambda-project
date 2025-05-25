@@ -1,18 +1,26 @@
 #!/bin/bash
+set -e  # Exit on error
 
-# Cleanup old build
-rm -rf lambda_build lambda.zip
-mkdir lambda_build
+# Change to project root
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_ROOT"
 
-# Install dependencies
-pip install -r requirements.txt -t lambda_build/
+echo "Current working directory: $PWD"
 
-# Copy function code
-cp lambda_function.py lambda_build/
+# Cleanup
+rm -rf lambda/lambda_build
+mkdir -p lambda/lambda_build
 
-# Zip the contents
-cd lambda_build
-zip -r ../lambda_function.zip .
-cd ..
+# Install dependencies to build dir
+pip install -r lambda/requirements.txt -t lambda/lambda_build/
 
-echo "Lambda deployment package created: lambda_function.zip"
+# Copy source file
+cp lambda/lambda_function.py lambda/lambda_build/
+
+# Zip contents INTO the build folder
+cd lambda/lambda_build
+zip -r lambda.zip .
+cd "$PROJECT_ROOT"
+
+echo "Lambda deployment package created at lambda/lambda_build/lambda.zip"
