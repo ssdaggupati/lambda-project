@@ -2,7 +2,7 @@ name: Build Lambda Deployment Package
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   workflow_dispatch:
 
 jobs:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
+    - name: Checkout code
       uses: actions/checkout@v3
 
     - name: Set up Python
@@ -18,8 +18,9 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install dependencies
+    - name: Install dependencies and prepare Lambda package
       run: |
+        mkdir -p lambda_build
         pip install -r requirements.txt -t lambda_build/
         cp lambda_function.py lambda_build/
 
@@ -28,9 +29,8 @@ jobs:
         cd lambda_build
         zip -r ../lambda.zip .
 
-    - name: Upload Artifact
+    - name: Upload Lambda package as artifact
       uses: actions/upload-artifact@v3
       with:
         name: lambda-package
         path: lambda.zip
-
