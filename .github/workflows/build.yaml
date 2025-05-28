@@ -24,7 +24,7 @@ jobs:
         ./scripts/build_lambda.sh
 
     - name: Upload Lambda package as artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v2
       with:
         name: lambda-package
         path: lambda/lambda_build/lambda_function.zip
