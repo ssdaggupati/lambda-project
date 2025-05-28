@@ -1,1 +1,3 @@
   lambda/lambda_build
+echo "New folder/" >> .gitignore
+git rm -r --cached "New folder/"
