@@ -7,24 +7,40 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+    - name: Set up Python and AWS CLI
+      run: |
+        sudo apt-get update && sudo apt-get install -y zip curl unzip
+        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip awscliv2.zip
+        sudo ./aws/install
 
     - name: Install dependencies and prepare Lambda package
       run: |
         chmod +x scripts/build_lambda.sh
         ./scripts/build_lambda.sh
 
+    - name: Verify IAM role
+      run: |
+        echo "IAM Identity:"
+        aws sts get-caller-identity
+        echo "Lambda Permissions Test:"
+        aws lambda get-function --function-name test_lambda
+
+    - name: Deploy to AWS Lambda
+      run: |
+        aws lambda update-function-code \
+          --function-name test_lambda \
+          --zip-file fileb://lambda/lambda_build/lambda_function.zip \
+          --region us-east-1
+
     - name: Upload Lambda package as artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: lambda-package
         path: lambda/lambda_build/lambda_function.zip
