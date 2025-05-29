@@ -13,15 +13,17 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Python and AWS CLI
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies and prepare Lambda package
       run: |
         sudo apt-get update && sudo apt-get install -y zip curl unzip
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip awscliv2.zip
         sudo ./aws/install
-
-    - name: Install dependencies and prepare Lambda package
-      run: |
         chmod +x scripts/build_lambda.sh
         ./scripts/build_lambda.sh
 
