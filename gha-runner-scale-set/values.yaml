@@ -9,14 +9,14 @@ githubConfigUrl: ""
 ##   C) a pre-defined Kubernetes secret.
 ## The syntax for each of these variations is documented below.
 ## (Variation A) When using a PAT token, the syntax is as follows:
-githubConfigSecret:
+githubConfigSecret: github-pat-secret
   # Example:
   # github_token: "ghp_sampleSampleSampleSampleSampleSample"
-<<<<<<< HEAD
-  github_token: ""
-=======
+
+ # github_token: ""
+
   #github_token: ""
->>>>>>> 5672d6b (update values.yaml)
+
 #
 ## (Variation B) When using a GitHub App, the syntax is as follows:
 # githubConfigSecret:
