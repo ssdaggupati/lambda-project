@@ -1,4 +1,12 @@
-  lambda/lambda_build
-New folder/
-New folder/
+# Ignore Terraform working directory and state
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/.terraform.lock.hcl
+
+# Optional: ignore any zip or build artifacts
+*.zip
+
+# Existing entries
+lambda/lambda_build
 New folder/
