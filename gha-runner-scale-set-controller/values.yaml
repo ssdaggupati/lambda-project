@@ -33,11 +33,14 @@ serviceAccount:
   # Specifies whether a service account should be created for running the controller pod
   create: true
   # Annotations to add to the service account
-  annotations: {}
+  name: github-runner # The name of the service account to use.
+  annotations: 
+    eks.amazonaws.com/role-arn: arn:aws:iam::819340487192:role/GitHubSelfHosted-Lambda-Role
+  
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   # You can not use the default service account for this.
-  name: ""
+
 
 podAnnotations: {}
 
