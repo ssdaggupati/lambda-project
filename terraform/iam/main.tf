@@ -11,12 +11,12 @@ resource "aws_iam_role" "github_runner_role" {
       {
         Effect = "Allow",
         Principal = {
-          Federated = "arn:aws:iam::819340487192:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/50B91596F352A8C2877D012F1BC352FB"
+          Federated = "arn:aws:iam::819340487192:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/15B6386F423450DC0C76753344777FD7"
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "oidc.eks.us-east-1.amazonaws.com/id/50B91596F352A8C2877D012F1BC352FB:sub" = "system:serviceaccount:arc-runners:github-runner"
+            "oidc.eks.us-east-1.amazonaws.com/id/15B6386F423450DC0C76753344777FD7:sub" = "system:serviceaccount:arc-runners:github-runner"
           }
         }
       }
