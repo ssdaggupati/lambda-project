@@ -20,10 +20,16 @@ jobs:
     
     - name: Install dependencies and prepare Lambda package
       run: |
-        sudo apt-get update && sudo apt-get install -y zip curl unzip
+        # Workaround for Ubuntu mirror issues in self-hosted runners
+        sudo sed -i 's|http://archive.ubuntu.com/ubuntu|http://mirror.math.princeton.edu/pub/ubuntu|g' /etc/apt/sources.list
+        sudo sed -i 's|http://security.ubuntu.com/ubuntu|http://mirror.math.princeton.edu/pub/ubuntu|g' /etc/apt/sources.list
+        sudo apt-get update
+        sudo apt-get install -y zip curl unzip
+
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip awscliv2.zip
         sudo ./aws/install
+
         chmod +x scripts/build_lambda.sh
         ./scripts/build_lambda.sh
 
@@ -36,7 +42,7 @@ jobs:
 
     - name: Deploy to AWS Lambda
       run: |
-        aws lambda update-function-code \
+        aws lambda Supdate-function-code \
           --function-name test_lambda \
           --zip-file fileb://lambda/lambda_build/lambda_function.zip \
           --region us-east-1
