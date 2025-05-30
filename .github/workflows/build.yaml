@@ -42,13 +42,16 @@ jobs:
 
     - name: Deploy to AWS Lambda
       run: |
-        aws lambda Supdate-function-code \
+        aws lambda update-function-code \
           --function-name test_lambda \
           --zip-file fileb://lambda/lambda_build/lambda_function.zip \
           --region us-east-1
-
+s
     - name: Upload Lambda package as artifact
       uses: actions/upload-artifact@v4
       with:
         name: lambda-package
         path: lambda/lambda_build/lambda_function.zip
+
+    - name: Debug GitHub context (optional)
+      run: echo "${{ toJson(github) }}"
