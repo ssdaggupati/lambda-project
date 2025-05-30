@@ -52,6 +52,3 @@ jobs:
       with:
         name: lambda-package
         path: lambda/lambda_build/lambda_function.zip
-
-    - name: Debug GitHub context (optional)
-      run: echo "${{ toJson(github) }}"
