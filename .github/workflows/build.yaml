@@ -51,4 +51,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: lambda-package 
-        path: lambda/lambda_build/lambda_function.zip
+        path: lambda/lambda_build/lambda_function.zip 
