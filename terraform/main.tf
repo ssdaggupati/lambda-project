@@ -21,8 +21,8 @@ resource "aws_iam_role" "github_oidc_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_full_access" {
-  policy_arn = "arn:aws:iam::aws:policy/AWSLambda_FullAccess"
+resource "aws_iam_role_policy_attachment" "lambda_readonly_access" {
+  policy_arn = "arn:aws:iam::aws:policy/AWSLambda_ReadOnlyAccess"
   role       = aws_iam_role.github_oidc_role.name
 }
 
