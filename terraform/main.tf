@@ -16,8 +16,8 @@ resource "aws_iam_role" "github_oidc_role" {
       }
     }]
   })
+}
 
-# Custom IAM Policy with minimum permissions required for Lambda deployment
 resource "aws_iam_policy" "lambda_custom_policy" {
   name        = "GitHubLambdaDeployPolicy"
   description = "Minimum permissions to deploy and manage Lambda functions"
@@ -49,7 +49,6 @@ resource "aws_iam_policy" "lambda_custom_policy" {
   })
 }
 
-# Attach the custom Lambda deployment policy to the role
 resource "aws_iam_role_policy_attachment" "lambda_custom_policy_attach" {
   policy_arn = aws_iam_policy.lambda_custom_policy.arn
   role       = aws_iam_role.github_oidc_role.name

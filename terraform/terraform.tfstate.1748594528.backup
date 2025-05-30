@@ -1,0 +1,87 @@
+{
+  "version": 4,
+  "terraform_version": "1.12.1",
+  "serial": 19,
+  "lineage": "c4cd01bf-5c2e-0435-faa5-e2ae94ea3f01",
+  "outputs": {
+    "iam_role_arn": {
+      "value": "arn:aws:iam::819340487192:role/GitHubSelfHosted-Lambda-Role",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "aws_iam_policy",
+      "name": "lambda_custom_policy",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:iam::819340487192:policy/GitHubLambdaDeployPolicy",
+            "attachment_count": 1,
+            "description": "Minimum permissions to deploy and manage Lambda functions",
+            "id": "arn:aws:iam::819340487192:policy/GitHubLambdaDeployPolicy",
+            "name": "GitHubLambdaDeployPolicy",
+            "name_prefix": "",
+            "path": "/",
+            "policy": "{\"Statement\":[{\"Action\":[\"lambda:GetFunction\",\"lambda:CreateFunction\",\"lambda:UpdateFunctionCode\",\"lambda:UpdateFunctionConfiguration\",\"iam:PassRole\"],\"Effect\":\"Allow\",\"Resource\":\"*\"},{\"Action\":[\"logs:CreateLogGroup\",\"logs:CreateLogStream\",\"logs:PutLogEvents\"],\"Effect\":\"Allow\",\"Resource\":\"*\"}],\"Version\":\"2012-10-17\"}",
+            "policy_id": "ANPA35RD7VIMPBPBNAZEM",
+            "tags": {},
+            "tags_all": {}
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "lambda_custom_policy_attach",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "GitHubSelfHosted-Lambda-Role-20250530042958782500000001",
+            "policy_arn": "arn:aws:iam::819340487192:policy/GitHubLambdaDeployPolicy",
+            "role": "GitHubSelfHosted-Lambda-Role"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_policy.lambda_custom_policy",
+            "aws_iam_role.eks_runner_lambda_role"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_iam_role_policy_attachment",
+      "name": "s3_readonly_access",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "id": "GitHubSelfHosted-Lambda-Role-20250530022907760000000001",
+            "policy_arn": "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess",
+            "role": "GitHubSelfHosted-Lambda-Role"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_iam_role.eks_runner_lambda_role"
+          ]
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
