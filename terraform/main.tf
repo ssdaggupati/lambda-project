@@ -30,22 +30,11 @@ resource "aws_iam_policy" "lambda_custom_policy" {
         Effect = "Allow",
         Action = [
           "lambda:GetFunction",
-          "lambda:CreateFunction",
           "lambda:UpdateFunctionCode",
-          "lambda:UpdateFunctionConfiguration",
-          "iam:PassRole"
+          "lambda:UpdateFunctionConfiguration",        
         ],
         Resource = "*"
-      },
-      {
-        Effect = "Allow",
-        Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ],
-        Resource = "*"
-      }
+      },      
     ]
   })
 }
