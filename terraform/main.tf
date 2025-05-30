@@ -1,4 +1,3 @@
-# IAM roles and policies for EKS and GitHub Actions Runner
 resource "aws_iam_role" "github_oidc_role" {
   name = "GitHubSelfHosted-Lambda-Role"
 
@@ -8,12 +7,12 @@ resource "aws_iam_role" "github_oidc_role" {
       {
         Effect = "Allow",
         Principal = {
-          Federated = "arn:aws:iam::819340487192:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/50B91596F352A8C2877D012F1BC352FB"
+          Federated = "arn:aws:iam::819340487192:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/46E5864AB37FD92F0339A9D7B7EDD59C"
         },
         Action = "sts:AssumeRoleWithWebIdentity",
         Condition = {
           StringEquals = {
-            "oidc.eks.us-east-1.amazonaws.com/id/50B91596F352A8C2877D012F1BC352FB:sub" = "system:serviceaccount:arc-runners:github-runner"
+            "oidc.eks.us-east-1.amazonaws.com/id/46E5864AB37FD92F0339A9D7B7EDD59C:sub" = "system:serviceaccount:default:arc-runner-set-gha-rs-no-permission"
           }
         }
       }
