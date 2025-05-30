@@ -42,10 +42,23 @@ jobs:
 
     - name: Deploy to AWS Lambda
       run: |
-        aws lambda update-function-code \
-          --function-name test_lambda \
-          --zip-file fileb://lambda/lambda_build/lambda_function.zip \
-          --region us-east-1
+        FUNCTION_EXISTS=$(aws lambda get-function --function-name test_lambda --region us-east-1 2>&1 || true)
+        if echo "$FUNCTION_EXISTS" | grep -q "ResourceNotFoundException"; then
+          echo "Function does not exist. Creating..."
+          aws lambda create-function \
+            --function-name test_lambda \
+            --runtime python3.11 \
+            --role arn:aws:iam::819340487192:role/GitHubSelfHosted-Lambda-Role \
+            --handler lambda_function.lambda_handler \
+            --zip-file fileb://lambda/lambda_build/lambda_function.zip \
+            --region us-east-1
+        else
+          echo "Function exists. Updating code..."
+          aws lambda update-function-code \
+            --function-name test_lambda \
+            --zip-file fileb://lambda/lambda_build/lambda_function.zip \
+            --region us-east-1
+        fi
 
     - name: Upload Lambda package as artifact
       uses: actions/upload-artifact@v4
