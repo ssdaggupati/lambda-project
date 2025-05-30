@@ -46,7 +46,7 @@ jobs:
           --function-name test_lambda \
           --zip-file fileb://lambda/lambda_build/lambda_function.zip \
           --region us-east-1
-s
+
     - name: Upload Lambda package as artifact
       uses: actions/upload-artifact@v4
       with:
