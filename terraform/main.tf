@@ -1,3 +1,4 @@
+
 resource "aws_iam_role" "github_oidc_role" {
   name = "GitHubSelfHosted-Lambda-Role"
 
@@ -6,12 +7,12 @@ resource "aws_iam_role" "github_oidc_role" {
     Statement = [{
       Effect = "Allow",
       Principal = {
-        Federated = "arn:aws:iam::819340487192:oidc-provider/token.actions.githubusercontent.com"
+        Federated = "arn:aws:iam::819340487192:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/46E5864AB37FD92F0339A9D7B7EDD59C"
       },
       Action = "sts:AssumeRoleWithWebIdentity",
       Condition = {
-        StringLike = {
-          "token.actions.githubusercontent.com:sub" = "repo:ssdaggupati/lambda-project:*"
+        StringEquals = {
+          "oidc.eks.us-east-1.amazonaws.com/id/46E5864AB37FD92F0339A9D7B7EDD59C:sub" = "system:serviceaccount:arc-runners:github-runner"
         }
       }
     }]
