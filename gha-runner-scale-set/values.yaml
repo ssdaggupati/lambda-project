@@ -9,13 +9,13 @@ githubConfigUrl: "https://github.com/ssdaggupati/lambda-project"
 ##   C) a pre-defined Kubernetes secret.
 ## The syntax for each of these variations is documented below.
 ## (Variation A) When using a PAT token, the syntax is as follows:
-# githubConfigSecret:
-#   # Example:
-#   # github_token: "ghp_sampleSampleSampleSampleSampleSample"
-#   github_token: ""
+githubConfigSecret: controller-manager
+  # Example:
+  # github_token: "ghp_sampleSampleSampleSampleSampleSample"
+  # github_token: ""
 #
 ## (Variation B) When using a GitHub App, the syntax is as follows:
-githubConfigSecret: controller-manager
+# githubConfigSecret:
 #   # NOTE: IDs MUST be strings, use quotes
 #   # The github_app_id can be an app_id or the client_id
 #   github_app_id: ""
@@ -53,11 +53,11 @@ githubConfigSecret: controller-manager
 #     - example.org
 
 ## maxRunners is the max number of runners the autoscaling runner set will scale up to.
-# maxRunners: 5
+maxRunners: 5
 
 ## minRunners is the min number of idle runners. The target number of runners created will be
 ## calculated as a sum of minRunners and the number of jobs assigned to the scale set.
-# minRunners: 0
+minRunners: 0
 
 # runnerGroup: "default"
 
@@ -272,19 +272,93 @@ githubConfigSecret: controller-manager
 
 ## template is the PodSpec for each runner Pod
 ## For reference: https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/#PodSpec
-minRunners: 1
-maxRunners: 3
-
 template:
+  ## template.spec will be modified if you change the container mode
+  ## with containerMode.type=dind, we will populate the template.spec with following pod spec
+  ## template:
+  ##   spec:
+  ##     initContainers:
+  ##     - name: init-dind-externals
+  ##       image: ghcr.io/actions/actions-runner:latest
+  ##       command: ["cp", "-r", "/home/runner/externals/.", "/home/runner/tmpDir/"]
+  ##       volumeMounts:
+  ##         - name: dind-externals
+  ##           mountPath: /home/runner/tmpDir
+  ##     containers:
+  ##     - name: runner
+  ##       image: ghcr.io/actions/actions-runner:latest
+  ##       command: ["/home/runner/run.sh"]
+  ##       env:
+  ##         - name: DOCKER_HOST
+  ##           value: unix:///var/run/docker.sock
+  ##       volumeMounts:
+  ##         - name: work
+  ##           mountPath: /home/runner/_work
+  ##         - name: dind-sock
+  ##           mountPath: /var/run
+  ##     - name: dind
+  ##       image: docker:dind
+  ##       args:
+  ##         - dockerd
+  ##         - --host=unix:///var/run/docker.sock
+  ##         - --group=$(DOCKER_GROUP_GID)
+  ##       env:
+  ##         - name: DOCKER_GROUP_GID
+  ##           value: "123"
+  ##       securityContext:
+  ##         privileged: true
+  ##       volumeMounts:
+  ##         - name: work
+  ##           mountPath: /home/runner/_work
+  ##         - name: dind-sock
+  ##           mountPath: /var/run
+  ##         - name: dind-externals
+  ##           mountPath: /home/runner/externals
+  ##     volumes:
+  ##     - name: work
+  ##       emptyDir: {}
+  ##     - name: dind-sock
+  ##       emptyDir: {}
+  ##     - name: dind-externals
+  ##       emptyDir: {}
+  ######################################################################################################
+  ## with containerMode.type=kubernetes, we will populate the template.spec with following pod spec
+  ## template:
+  ##   spec:
+  ##     containers:
+  ##     - name: runner
+  ##       image: ghcr.io/actions/actions-runner:latest
+  ##       command: ["/home/runner/run.sh"]
+  ##       env:
+  ##         - name: ACTIONS_RUNNER_CONTAINER_HOOKS
+  ##           value: /home/runner/k8s/index.js
+  ##         - name: ACTIONS_RUNNER_POD_NAME
+  ##           valueFrom:
+  ##             fieldRef:
+  ##               fieldPath: metadata.name
+  ##         - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
+  ##           value: "true"
+  ##       volumeMounts:
+  ##         - name: work
+  ##           mountPath: /home/runner/_work
+  ##     volumes:
+  ##       - name: work
+  ##         ephemeral:
+  ##           volumeClaimTemplate:
+  ##             spec:
+  ##               accessModes: [ "ReadWriteOnce" ]
+  ##               storageClassName: "local-path"
+  ##               resources:
+  ##                 requests:
+  ##                   storage: 1Gi
   spec:
-    serviceAccountName: arc-runner-set-gha-rs-no-permission
     containers:
       - name: runner
         image: ghcr.io/actions/actions-runner:latest
         command: ["/home/runner/run.sh"]
         env:
           - name: RUNNER_SCOPE
-            value: "repo"
+            value: "repo:ssdaggupati/lambda-project"
           - name: RUNNER_GROUP
             value: "Default"
           - name: GITHUB_URL
@@ -295,160 +369,81 @@ template:
             memory: "1Gi"
           requests:
             cpu: "500m"
-            memory: "512Mi"
+            memory: "512Mi"    
+## Optional controller service account that needs to have required Role and RoleBinding
+## to operate this gha-runner-scale-set installation.
+## The helm chart will try to find the controller deployment and its service account at installation time.
+## In case the helm chart can't find the right service account, you can explicitly pass in the following value
+## to help it finish RoleBinding with the right service account.
+## Note: if your controller is installed to only watch a single namespace, you have to pass these values explicitly.
+# controllerServiceAccount:
+#   namespace: arc-system
+#   name: test-arc-gha-runner-scale-set-controller
+serviceAccount:
+  create: true
+  name: github-runner
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::819340487192:role/GitHubOIDC-Actions-Lambda-Role
+    
+# Overrides the default `.Release.Namespace` for all resources in this chart.
+namespaceOverride: ""
 
-#   ## template.spec will be modified if you change the container mode
-#   ## with containerMode.type=dind, we will populate the template.spec with following pod spec
-#   ## template:
-#   ##   spec:
-#   ##     initContainers:
-#   ##     - name: init-dind-externals
-#   ##       image: ghcr.io/actions/actions-runner:latest
-#   ##       command: ["cp", "-r", "/home/runner/externals/.", "/home/runner/tmpDir/"]
-#   ##       volumeMounts:
-#   ##         - name: dind-externals
-#   ##           mountPath: /home/runner/tmpDir
-#   ##     containers:
-#   ##     - name: runner
-#   ##       image: ghcr.io/actions/actions-runner:latest
-#   ##       command: ["/home/runner/run.sh"]
-#   ##       env:
-#   ##         - name: DOCKER_HOST
-#   ##           value: unix:///var/run/docker.sock
-#   ##       volumeMounts:
-#   ##         - name: work
-#   ##           mountPath: /home/runner/_work
-#   ##         - name: dind-sock
-#   ##           mountPath: /var/run
-#   ##     - name: dind
-#   ##       image: docker:dind
-#   ##       args:
-#   ##         - dockerd
-#   ##         - --host=unix:///var/run/docker.sock
-#   ##         - --group=$(DOCKER_GROUP_GID)
-#   ##       env:
-#   ##         - name: DOCKER_GROUP_GID
-#   ##           value: "123"
-#   ##       securityContext:
-#   ##         privileged: true
-#   ##       volumeMounts:
-#   ##         - name: work
-#   ##           mountPath: /home/runner/_work
-#   ##         - name: dind-sock
-#   ##           mountPath: /var/run
-#   ##         - name: dind-externals
-#   ##           mountPath: /home/runner/externals
-#   ##     volumes:
-#   ##     - name: work
-#   ##       emptyDir: {}
-#   ##     - name: dind-sock
-#   ##       emptyDir: {}
-#   ##     - name: dind-externals
-#   ##       emptyDir: {}
-#   ######################################################################################################
-#   ## with containerMode.type=kubernetes, we will populate the template.spec with following pod spec
-#   ## template:
-#   ##   spec:
-#   ##     containers:
-#   ##     - name: runner
-#   ##       image: ghcr.io/actions/actions-runner:latest
-#   ##       command: ["/home/runner/run.sh"]
-#   ##       env:
-#   ##         - name: ACTIONS_RUNNER_CONTAINER_HOOKS
-#   ##           value: /home/runner/k8s/index.js
-#   ##         - name: ACTIONS_RUNNER_POD_NAME
-#   ##           valueFrom:
-#   ##             fieldRef:
-#   ##               fieldPath: metadata.name
-#   ##         - name: ACTIONS_RUNNER_REQUIRE_JOB_CONTAINER
-#   ##           value: "true"
-#   ##       volumeMounts:
-#   ##         - name: work
-#   ##           mountPath: /home/runner/_work
-#   ##     volumes:
-#   ##       - name: work
-#   ##         ephemeral:
-#   ##           volumeClaimTemplate:
-#   ##             spec:
-#   ##               accessModes: [ "ReadWriteOnce" ]
-#   ##               storageClassName: "local-path"
-#   ##               resources:
-#   ##                 requests:
-#   ##                   storage: 1Gi
-#   spec:
-#     containers:
-#       - name: runner
-#         image: ghcr.io/actions/actions-runner:latest
-#         command: ["/home/runner/run.sh"]
-# ## Optional controller service account that needs to have required Role and RoleBinding
-# ## to operate this gha-runner-scale-set installation.
-# ## The helm chart will try to find the controller deployment and its service account at installation time.
-# ## In case the helm chart can't find the right service account, you can explicitly pass in the following value
-# ## to help it finish RoleBinding with the right service account.
-# ## Note: if your controller is installed to only watch a single namespace, you have to pass these values explicitly.
-# # controllerServiceAccount:
-# #   namespace: arc-system
-# #   name: test-arc-gha-runner-scale-set-controller
+## Optional annotations and labels applied to all resources created by helm installation
+##
+## Annotations applied to all resources created by this helm chart. Annotations will not override the default ones, so make sure
+## the custom annotation is not reserved.
+# annotations:
+#   key: value
+##
+## Labels applied to all resources created by this helm chart. Labels will not override the default ones, so make sure
+## the custom label is not reserved.
+# labels:
+#   key: value
 
-# # Overrides the default `.Release.Namespace` for all resources in this chart.
-# namespaceOverride: ""
-
-# ## Optional annotations and labels applied to all resources created by helm installation
-# ##
-# ## Annotations applied to all resources created by this helm chart. Annotations will not override the default ones, so make sure
-# ## the custom annotation is not reserved.
-# # annotations:
-# #   key: value
-# ##
-# ## Labels applied to all resources created by this helm chart. Labels will not override the default ones, so make sure
-# ## the custom label is not reserved.
-# # labels:
-# #   key: value
-
-# ## If you want more fine-grained control over annotations applied to particular resource created by this chart,
-# ## you can use `resourceMeta`.
-# ## Order of applying labels and annotations is:
-# ## 1. Apply labels/annotations globally, using `annotations` and `labels` field
-# ## 2. Apply `resourceMeta` labels/annotations
-# ## 3. Apply reserved labels/annotations
-# # resourceMeta:
-# #   autoscalingRunnerSet:
-# #     labels:
-# #       key: value
-# #     annotations:
-# #       key: value
-# #   githubConfigSecret:
-# #     labels:
-# #       key: value
-# #     annotations:
-# #       key: value
-# #   kubernetesModeRole:
-# #     labels:
-# #       key: value
-# #     annotations:
-# #       key: value
-# #   kubernetesModeRoleBinding:
-# #     labels:
-# #       key: value
-# #     annotations:
-# #       key: value
-# #   kubernetesModeServiceAccount:
-# #     labels:
-# #       key: value
-# #     annotations:
-# #       key: value
-# #   managerRole:
-# #     labels:
-# #       key: value
-# #     annotations:
-# #       key: value
-# #   managerRoleBinding:
-# #     labels:
-# #       key: value
-# #     annotations:
-# #       key: value
-# #   noPermissionServiceAccount:
-# #     labels:
-# #       key: value
-# #     annotations:
-# #       key: value
+## If you want more fine-grained control over annotations applied to particular resource created by this chart,
+## you can use `resourceMeta`.
+## Order of applying labels and annotations is:
+## 1. Apply labels/annotations globally, using `annotations` and `labels` field
+## 2. Apply `resourceMeta` labels/annotations
+## 3. Apply reserved labels/annotations
+# resourceMeta:
+#   autoscalingRunnerSet:
+#     labels:
+#       key: value
+#     annotations:
+#       key: value
+#   githubConfigSecret:
+#     labels:
+#       key: value
+#     annotations:
+#       key: value
+#   kubernetesModeRole:
+#     labels:
+#       key: value
+#     annotations:
+#       key: value
+#   kubernetesModeRoleBinding:
+#     labels:
+#       key: value
+#     annotations:
+#       key: value
+#   kubernetesModeServiceAccount:
+#     labels:
+#       key: value
+#     annotations:
+#       key: value
+#   managerRole:
+#     labels:
+#       key: value
+#     annotations:
+#       key: value
+#   managerRoleBinding:
+#     labels:
+#       key: value
+#     annotations:
+#       key: value
+#   noPermissionServiceAccount:
+#     labels:
+#       key: value
+#     annotations:
+#       key: value

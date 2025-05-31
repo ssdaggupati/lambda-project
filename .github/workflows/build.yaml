@@ -5,10 +5,6 @@ on:
     branches: [ master ]
   workflow_dispatch:
 
-permissions:
-  id-token: write
-  contents: read
-
 jobs:
   build:
     runs-on: arc-runner-set
@@ -16,13 +12,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
-    - name: Configure AWS credentials via GitHub OIDC
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: arn:aws:iam::819340487192:role/GitHubOIDC-Actions-Lambda-Role
-        aws-region: us-east-1
-
+    
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
@@ -30,9 +20,7 @@ jobs:
 
     - name: Install dependencies and prepare Lambda package
       run: |
-        # Workaround for Ubuntu mirror issues in self-hosted runners
-        sudo sed -i 's|http://archive.ubuntu.com/ubuntu|http://mirror.math.princeton.edu/pub/ubuntu|g' /etc/apt/sources.list
-        sudo sed -i 's|http://security.ubuntu.com/ubuntu|http://mirror.math.princeton.edu/pub/ubuntu|g' /etc/apt/sources.list
+        
         sudo apt-get update
         sudo apt-get install -y zip curl unzip
 
