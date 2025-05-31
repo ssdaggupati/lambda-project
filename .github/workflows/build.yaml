@@ -20,7 +20,7 @@ jobs:
     - name: Configure AWS credentials via GitHub OIDC
       uses: aws-actions/configure-aws-credentials@v2
       with:
-        role-to-assume: arn:aws:iam::819340487192:role/GitHubSelfHosted-Lambda-Role
+        role-to-assume: arn:aws:iam::819340487192:role/GitHubOIDC-Actions-Lambda-Role
         aws-region: us-east-1
 
     - name: Set up Python

@@ -1,6 +1,36 @@
-# --- GitHub Actions OIDC Role ---
+# --- GitHub OIDC Provider (one-time setup per AWS account) ---
+resource "aws_iam_openid_connect_provider" "github" {
+  url             = "https://token.actions.githubusercontent.com"
+  client_id_list  = ["sts.amazonaws.com"]
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+}
+
+# --- IAM Role for GitHub Actions (hosted runners) ---
+resource "aws_iam_role" "github_oidc_actions_role" {
+  name = "GitHubOIDC-Actions-Lambda-Role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Federated = aws_iam_openid_connect_provider.github.arn
+        },
+        Action = "sts:AssumeRoleWithWebIdentity",
+        Condition = {
+          StringLike = {
+            "token.actions.githubusercontent.com:sub" = "repo:ssdaggupati/lambda-project:*"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# --- IAM Role for EKS Self-hosted Runner ---
 resource "aws_iam_role" "github_lambda_oidc_role" {
-  name = "GitHubSelfHosted-Lambda-Role-v2"
+  name = "GitHubSelfHosted-Lambda-Role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -21,8 +51,9 @@ resource "aws_iam_role" "github_lambda_oidc_role" {
   })
 }
 
-resource "aws_iam_policy" "github_lambda_deploy_policy" {
-  name = "GitHubLambdaDeployPolicy-v2"
+# --- Shared Lambda Deployment Policy ---
+resource "aws_iam_policy" "lambda_deploy_policy" {
+  name = "GitHubLambdaDeployPolicy"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -49,8 +80,15 @@ resource "aws_iam_policy" "github_lambda_deploy_policy" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "github_lambda_deploy_policy_attach" {
-  policy_arn = aws_iam_policy.github_lambda_deploy_policy.arn
+# --- Attach Lambda Policy to GitHub Hosted Actions Role ---
+resource "aws_iam_role_policy_attachment" "attach_policy_to_actions_role" {
+  policy_arn = aws_iam_policy.lambda_deploy_policy.arn
+  role       = aws_iam_role.github_oidc_actions_role.name
+}
+
+# --- Attach Lambda Policy to Self-hosted EKS Runner Role ---
+resource "aws_iam_role_policy_attachment" "attach_policy_to_eks_runner" {
+  policy_arn = aws_iam_policy.lambda_deploy_policy.arn
   role       = aws_iam_role.github_lambda_oidc_role.name
 }
 

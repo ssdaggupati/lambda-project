@@ -1,8 +1,7 @@
 # Default values for gha-runner-scale-set-controller.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-labels:
-  app.kubernetes.io/part-of: gha-rs-controller
+labels: {}
 
 # leaderElection will be enabled when replicaCount>1,
 # So, only one replica will in charge of reconciliation at a given time
@@ -31,16 +30,14 @@ env:
 #        optional: true
 
 serviceAccount:
+  # Specifies whether a service account should be created for running the controller pod
   create: true
-  name: github-runner
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::819340487192:role/GitHubSelfHosted-Lambda-Role
-
-  
+  # Annotations to add to the service account
+  annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
   # You can not use the default service account for this.
-
+  name: ""
 
 podAnnotations: {}
 
