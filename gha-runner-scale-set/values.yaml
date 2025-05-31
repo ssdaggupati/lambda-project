@@ -1,5 +1,5 @@
 githubConfigUrl: https://github.com/ssdaggupati/lambda-project
-githubConfigSecret: controller-manager
+githubConfigSecret: "controller-manager"
 
 maxRunners: 5
 minRunners: 0

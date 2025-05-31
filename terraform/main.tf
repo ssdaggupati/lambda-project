@@ -1,4 +1,3 @@
-
 resource "aws_iam_role" "github_oidc_role" {
   name = "GitHubSelfHosted-Lambda-Role"
 
@@ -31,20 +30,15 @@ resource "aws_iam_policy" "lambda_custom_policy" {
         Action = [
           "lambda:GetFunction",
           "lambda:UpdateFunctionCode",
-          "lambda:UpdateFunctionConfiguration",        
+          "lambda:UpdateFunctionConfiguration"
         ],
         Resource = "*"
-      },      
+      }
     ]
   })
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_custom_policy_attach" {
   policy_arn = aws_iam_policy.lambda_custom_policy.arn
-  role       = aws_iam_role.github_oidc_role.name
-}
-
-resource "aws_iam_role_policy_attachment" "s3_readonly_access" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess"
   role       = aws_iam_role.github_oidc_role.name
 }
