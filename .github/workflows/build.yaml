@@ -36,12 +36,12 @@ jobs:
         echo "IAM Identity:"
         aws sts get-caller-identity
         echo "Lambda Permissions Test:"
-        aws lambda get-function --function-name Lambda_EKS
+        aws lambda get-function --function-name test_lambda
 
     - name: Deploy to AWS Lambda
       run: |
         aws lambda update-function-code \
-          --function-name Lambda_EKS \
+          --function-name test_lambda \
           --zip-file fileb://lambda/lambda_build/lambda_function.zip \
           --region us-east-1
 
